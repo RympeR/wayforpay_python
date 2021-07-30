@@ -1,0 +1,93 @@
+def generateWidgetObject(signature:str, account_data: dict, data: dict) -> str:
+        return {
+            'merchantAccount': account_data['merchant_account'],
+            'merchantDomainName': account_data['merchant_domain'],
+            'merchantTransactionType': 'AUTO',
+            'merchantTransactionSecureType': 'AUTO',
+            'orderReference': data['orderReference'],
+            'orderDate': data['orderDate'],
+            'amount': data["amount"],
+            'authorizationType': 'SimpleSignature',
+            'currency': data['currency'],
+            'productName':   list(map(str,data['productName'])),
+            'productPrice':  list(map(str,data['productPrice'])),
+            'productCount':  list(map(str,data['productCount'])),		
+            'merchantSignature': signature,
+            'language': data['language'],
+            'straightWidget': data['straightWidget']
+        }
+def generateWidgetScript(signature:str, account_data: dict, data: dict) -> str:
+    request_form = r"""
+        <script type="text/javascript"> 
+        function pay(){
+            var payment = new Wayforpay();
+                payment.run({""" + f"""
+                    merchantAccount: '{account_data['merchant_account']}',
+                    merchantDomainName: '{account_data['merchant_domain']}',
+                    merchantTransactionType: 'AUTO',
+                    merchantTransactionSecureType: 'AUTO',
+                    orderReference: '{data['orderReference']}',
+                    orderDate: '{data['orderDate']}',
+                    amount: '{data["amount"]}',
+                    authorizationType: 'SimpleSignature',
+                    currency: '{data['currency']}',
+                    productName:   {list(map(str,data['productName']))},
+                    productPrice:  {list(map(str,data['productPrice']))},
+                    productCount:  {list(map(str,data['productCount']))},		
+                    merchantSignature: '{signature}',
+                    language: '{data['language']}',
+                    straightWidget: {data['straightWidget']}
+                """ + r"""},
+                function (response) {
+                    window.location.href='"""+data["returnUrl"]+r"""';				
+                } , 			
+                function (response) {
+                    console.log('dude1');			
+                    window.reload()
+                },
+                function (response) {
+                    window.reload()
+                } 
+            );
+        }
+        window.addEventListener("message", function () {
+            if (event.data == 'WfpWidgetEventClose') {
+                
+                location.reload()
+            }
+        }, false);
+        </script>
+        
+    """
+    return request_form
+
+def generatePaymentFormScript(purchase_url: str,signature:str, account_data: dict, data: dict) -> str:
+    request_form = f"""
+        <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script defer id='widget-wfp-script' language='javascript' type='text/javascript' src='https://secure.wayforpay.com/server/pay-widget.js'></script>   
+        <form method="post" action="{purchase_url}" hidden accept-charset="utf-8">
+            <input name="merchantAccount" value="{account_data['merchant_account']}">
+            <input name="merchantAuthType" value="SimpleSignature">
+            <input name="merchantDomainName" value="{account_data['merchant_domain']}">
+            <input name="orderReference" value="{data['orderReference']}">
+            <input name="orderDate" value="{data['orderDate']}">
+            <input name="amount" value="{data["amount"]}">
+            <input name="serviceUrl" value="{data["serviceUrl"]}">
+            <input name="returnUrl" value="{data["returnUrl"]}">
+            <input name="currency" value="{data["currency"]}">
+            <input name="language" value="{data["language"]}">
+            <input name="orderTimeout" value="49000">"""
+    for item in data['productName']:
+        request_form += f'''<input name="productName[]" value="{item}">\n'''
+    for item in data['productPrice']:
+        request_form += f'''<input name="productPrice[]" value="{item}">\n'''
+    for item in data['productCount']:
+        request_form += f'''<input name="productCount[]" value="{item}">\n'''
+    request_form += f"""
+        <input name="defaultPaymentSystem" value="card">
+        <input name="merchantSignature" value="{signature}">
+        <input type="submit" id="subm" value="Test">
+    </form>
+        
+    """
+    return request_form

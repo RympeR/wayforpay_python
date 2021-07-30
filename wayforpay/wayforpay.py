@@ -72,6 +72,7 @@ class WayForPayAPI:
             'merchant_domain': self.merchant_domain
         }
         return generatePaymentFormScript(
+            PURCHASE_URL,
             self.merchantSignature,
             account_data,
             data
