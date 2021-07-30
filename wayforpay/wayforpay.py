@@ -5,6 +5,7 @@ from .payments import (
     generateWidgetScript,
     generatePaymentFormScript,
     generateWidgetObject,
+    generateFromSitePaymentObject,
 )
 import requests
 
@@ -45,7 +46,71 @@ class WayForPayAPI:
             'merchantTransactionSecureType': 'AUTO',
         }
 
+    def getRequestSignature(self, order_data: dict) -> str:
+        """[summary]
+        Generates request signature based on order data
+        Args:
+            order_data (dict)
+
+        Returns:
+            str: signature hash string
+        """
+        return get_signature(
+            self.merchant_key,
+            self.__SIGNATURE_SEPARATOR,
+            {**self.options, **order_data},
+            self.__signature__keys
+        )
+
+
+class PaymentRequests(WayForPayAPI):
+
+    def __init__(self):
+        super(PaymentRequests, self).__init__()
+
+    def inSiteChargeRequest(self, order_data: dict) -> dict:
+        """[summary]
+        create inSite request
+        Args:
+            order_data (dict): order data 
+                orderReference (str): timestamp
+                amount (float): order total amount
+                currency (str): 'USD', 'UAH', 'RUB'
+                card (str): user card number
+                expMonth (str): card expires month
+                expYear (str): card expires year
+                cardCvv (str): card cvv
+                cardHolder (str): full name of card holder "Test test"
+                productName (list[str]): product names list
+                productPrice (list[float]): product price list
+                productCount (list[int]): product count list
+                clientFirstName (str): client first name
+                clientLastName (str): client last name
+                clientCountry (str): client country
+                clientEmail (str): client email
+                clientPhone (str): client phone
+        Returns:
+            dict: wayforpay reponse object
+        """
+        account_data = {
+            'merchant_account': self.merchant_account,
+            'merchant_password': self.merchant_password,
+        }
+        response = requests.post(API_URL, data=generateFromSitePaymentObject(
+            account_data,
+            order_data
+        ))
+        return response.json()
+
     def generateWidget(self, data: dict) -> str:
+        """[summary]
+        Generate HTML widget for WayForPay payment page
+        Args:
+            data (dict): order data
+
+        Returns:
+            str: widget html <script> tag
+        """        
         self.merchantSignature = self.getRequestSignature(data)
         account_data = {
             'merchant_account': self.merchant_account,
@@ -98,22 +163,13 @@ class WayForPayAPI:
             data
         )
 
-    def getRequestSignature(self, order_data: dict) -> str:
-        """[summary]
-        Generates request signature based on order data
-        Args:
-            order_data (dict)
 
-        Returns:
-            str: signature hash string
-        """
-        return get_signature(
-            self.merchant_key,
-            self.__SIGNATURE_SEPARATOR,
-            {**self.options, **order_data},
-            self.__signature__keys
-        )
+class InvoiceRequests(WayForPayAPI):
 
+    def __init__(self):
+        super(InvoiceRequests, self).__init__()
+
+    
     def createInvoiceRequest(self, invoice_data: dict) -> dict:
         """[summary]
         Create user invoice

@@ -1,22 +1,24 @@
-def generateWidgetObject(signature:str, account_data: dict, data: dict) -> str:
-        return {
-            'merchantAccount': account_data['merchant_account'],
-            'merchantDomainName': account_data['merchant_domain'],
-            'merchantTransactionType': 'AUTO',
-            'merchantTransactionSecureType': 'AUTO',
-            'orderReference': data['orderReference'],
-            'orderDate': data['orderDate'],
-            'amount': data["amount"],
-            'authorizationType': 'SimpleSignature',
-            'currency': data['currency'],
-            'productName':   list(map(str,data['productName'])),
-            'productPrice':  list(map(str,data['productPrice'])),
-            'productCount':  list(map(str,data['productCount'])),		
-            'merchantSignature': signature,
-            'language': data['language'],
-            'straightWidget': data['straightWidget']
-        }
-def generateWidgetScript(signature:str, account_data: dict, data: dict) -> str:
+def generateWidgetObject(signature: str, account_data: dict, data: dict) -> str:
+    return {
+        'merchantAccount': account_data['merchant_account'],
+        'merchantDomainName': account_data['merchant_domain'],
+        'merchantTransactionType': 'AUTO',
+        'merchantTransactionSecureType': 'AUTO',
+        'orderReference': data['orderReference'],
+        'orderDate': data['orderDate'],
+        'amount': data["amount"],
+        'authorizationType': 'SimpleSignature',
+        'currency': data['currency'],
+        'productName':   list(map(str, data['productName'])),
+        'productPrice':  list(map(str, data['productPrice'])),
+        'productCount':  list(map(str, data['productCount'])),
+        'merchantSignature': signature,
+        'language': data['language'],
+        'straightWidget': data['straightWidget']
+    }
+
+
+def generateWidgetScript(signature: str, account_data: dict, data: dict) -> str:
     request_form = r"""
         <script type="text/javascript"> 
         function pay(){
@@ -61,7 +63,16 @@ def generateWidgetScript(signature:str, account_data: dict, data: dict) -> str:
     """
     return request_form
 
-def generatePaymentFormScript(purchase_url: str,signature:str, account_data: dict, data: dict) -> str:
+
+def generatePaymentFormScript(purchase_url: str, signature: str, account_data: dict, data: dict) -> str:
+    """[summary]
+    Creates object for from site chargment request
+    Args:
+        signature (str): signature hash string
+        account_data (dict): merchant_account: str
+                            merchant_domain: str
+        data (dict): order_data
+    """
     request_form = f"""
         <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script defer id='widget-wfp-script' language='javascript' type='text/javascript' src='https://secure.wayforpay.com/server/pay-widget.js'></script>   
@@ -91,3 +102,58 @@ def generatePaymentFormScript(purchase_url: str,signature:str, account_data: dic
         
     """
     return request_form
+
+def generateFromSitePaymentObject(signature: str, account_data: dict, data: dict)->dict:
+    """[summary]
+    Creates object for from site chargment request
+    Args:
+        signature (str): signature hash string
+        account_data (dict): merchant_account: str
+                            merchant_domain: str
+        data (dict): order + personal data to create charge
+            orderReference (str): timestamp
+            amount (float): order total amount
+            currency (str): 'USD', 'UAH', 'RUB'
+            card (str): user card number
+            expMonth (str): card expires month
+            expYear (str): card expires year
+            cardCvv (str): card cvv
+            cardHolder (str): full name of card holder "Test test"
+            productName (list[str]): product names list
+            productPrice (list[float]): product price list
+            productCount (list[int]): product count list
+            clientFirstName (str): client first name
+            clientLastName (str): client last name
+            clientCountry (str): client country
+            clientEmail (str): client email
+            clientPhone (str): client phone
+    Returns:
+        dict: [description]
+    """    
+    return {
+        "transactionType":"CHARGE",
+        'merchantAccount': account_data['merchant_account'],
+        "merchantAuthType":"SimpleSignature",
+        'merchantDomainName': account_data['merchant_domain'],
+        "merchantTransactionType":"AUTH",
+        "merchantTransactionSecureType": "NON3DS",
+        'merchantSignature': signature,
+        "apiVersion":1,
+        'orderReference': str(data['orderReference']),
+        'orderDate': str(data['orderReference']),
+        "amount":data["amount"],
+        'currency': data['currency'],
+        "card":data['card'],
+        "expMonth":data['expMonth'],
+        "expYear":data['expYear'],
+        "cardCvv":data['cardCvv'],
+        "cardHolder":data['cardHolder'],
+        'productName':   list(map(str, data['productName'])),
+        'productPrice':  list(map(float, data['productPrice'])),
+        'productCount':  list(map(int, data['productCount'])),
+        "clientFirstName":data['clientFirstName'],
+        "clientLastName":data['clientLastName'],
+        "clientCountry":data['clientCountry'],
+        "clientEmail":data['clientEmail'],
+        "clientPhone":data['clientPhone'],
+    }
