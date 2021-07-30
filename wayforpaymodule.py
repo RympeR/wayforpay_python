@@ -1,11 +1,12 @@
 import hashlib
 import hmac
 from datetime import date
-from .payments import *
 from .invoice import *
+import requests
 
 API_URL = "https://api.wayforpay.com/api"
 PURCHASE_URL = "https://secure.wayforpay.com/pay"
+INVOICE_URL = 'https://api.wayforpay.com/regularApi'
 API_VERSION = 1
 today = date.today()
 
@@ -149,7 +150,7 @@ class WayForPayAPI:
                     hash_str.append(str(_))
             else:
                 hash_str.append(str(options[datakey]))
-        hash_str = ';'.join(hash_str)
+        hash_str = self.__SIGNATURE_SEPARATOR.join(hash_str)
         self.merchant_key_encoded = bytes(str.encode(self.merchant_key))
         _hash = hmac.new(self.merchant_key_encoded, hash_str.encode(
             "utf-8"), hashlib.md5).hexdigest()
@@ -158,6 +159,130 @@ class WayForPayAPI:
     def get_request_signature(self, options: dict) -> str:
         return self.get_signature(options, self.__signature__keys)
 
-    
+    def createInvoiceRequest(self, invoice_data: dict) -> dict:
+        """
+            param: invoice_data
+                reqularMode -> one of [
+                    'once', 
+                    'daily',
+                    'weekly',
+                    'quartenly',
+                    'monthly',
+                    'halfyearly',
+                    'yearly'
+                ]
+                merchantPassword : str
+                amount : str
+                currency : str
+                dateNext -> dd.mm.yyyy : str
+                dateEnd -> dd.mm.yyyy : str
+                orderReference -> timestamp : str
+                email -> client email to notify
+            return: wayforpay reponse object
+        """
+        account_data = {
+            'merchant_account': self.merchant_account,
+            'merchant_password': self.merchant_password,
+        }
+        response = requests.post(INVOICE_URL, data=createInvoiceObject(
+                account_data,
+                invoice_data
+            )
+        )
+        return response.json()
 
+    def editInvoiceRequest(self, invoice_data: dict) -> dict:
+        """
+            param: invoice_data
+                reqularMode -> one of [
+                    'once', 
+                    'daily',
+                    'weekly',
+                    'quartenly',
+                    'monthly',
+                    'halfyearly',
+                    'yearly'
+                ]
+                merchantPassword : str
+                amount : str
+                currency : str
+                dateNext -> dd.mm.yyyy : str
+                dateEnd -> dd.mm.yyyy : str
+                orderReference -> timestamp : str
+                email -> client email to notify
+            return: wayforpay reponse object
+        """
+        account_data = {
+            'merchant_account': self.merchant_account,
+            'merchant_password': self.merchant_password,
+        }
+        response = requests.post(INVOICE_URL, data=editInvoiceObject(
+                account_data,
+                invoice_data
+            )
+        )
+        return response.json()
     
+    def statusInvoiceRequest(self, order_reference: str) -> dict:
+        """
+            param: orderReference : str
+            return: wayforpay reponse object
+        """
+        account_data = {
+            'merchant_account': self.merchant_account,
+            'merchant_password': self.merchant_password,
+        }
+        response = requests.post(INVOICE_URL, data=createInvoiceObject(
+                account_data,
+                order_reference
+            )
+        )
+        return response.json()
+    
+    def pauseInvoiceRequest(self, order_reference: str) -> dict:
+        """
+            param: orderReference : str
+            return: wayforpay reponse object
+        """
+        account_data = {
+            'merchant_account': self.merchant_account,
+            'merchant_password': self.merchant_password,
+        }
+        response = requests.post(INVOICE_URL, data=pauseInvoiceObject(
+                account_data,
+                order_reference
+            )
+        )
+        return response.json()
+    
+    def resumeInvoiceRequest(self, order_reference: str) -> dict:
+        """
+            param: orderReference : str
+            return: wayforpay reponse object
+        """
+        account_data = {
+            'merchant_account': self.merchant_account,
+            'merchant_password': self.merchant_password,
+        }
+        response = requests.post(INVOICE_URL, data=resumeInvoiceObject(
+                account_data,
+                order_reference
+            )
+        )
+        return response.json()
+    
+    def removeInvoiceRequest(self, order_reference: str) -> dict:
+        """
+            param: orderReference : str
+            return: wayforpay reponse object
+        """
+        account_data = {
+            'merchant_account': self.merchant_account,
+            'merchant_password': self.merchant_password,
+        }
+        response = requests.post(INVOICE_URL, data=removeInvoiceObject(
+                account_data,
+                order_reference
+            )
+        )
+        return response.json()
