@@ -52,6 +52,7 @@ def statusInvoiceObject(account_data: dict, order_reference: str) -> dict:
         "orderReference": order_reference,
     }
 
+
 def editInvoiceObject(account_data: dict, invoice_data: dict) -> dict:
     """
         example: https://wiki.wayforpay.com/view/13271051
@@ -90,6 +91,7 @@ def editInvoiceObject(account_data: dict, invoice_data: dict) -> dict:
         "email": invoice_data['email']
     }
 
+
 def pauseInvoiceObject(account_data: dict, order_reference: str) -> dict:
     """
         example: https://wiki.wayforpay.com/view/852506
@@ -104,6 +106,7 @@ def pauseInvoiceObject(account_data: dict, order_reference: str) -> dict:
         "merchantPassword": account_data['merchant_password'],
         "orderReference": order_reference,
     }
+
 
 def resumeInvoiceObject(account_data: dict, order_reference: str) -> dict:
     """
@@ -120,6 +123,7 @@ def resumeInvoiceObject(account_data: dict, order_reference: str) -> dict:
         "orderReference": order_reference,
     }
 
+
 def removeInvoiceObject(account_data: dict, order_reference: str) -> dict:
     """
         example: https://wiki.wayforpay.com/view/852521
@@ -134,4 +138,3 @@ def removeInvoiceObject(account_data: dict, order_reference: str) -> dict:
         "merchantPassword": account_data['merchant_password'],
         "orderReference": order_reference,
     }
-

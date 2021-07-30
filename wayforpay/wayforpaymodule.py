@@ -2,6 +2,7 @@ import hashlib
 import hmac
 from datetime import date
 from .invoice import *
+from .utils import get_signature
 import requests
 
 API_URL = "https://api.wayforpay.com/api"
@@ -120,7 +121,7 @@ class WayForPayAPI:
             
         """
         return request_form
-        
+
     def generate_widget_object(self, data: dict) -> dict:
         return {
             'merchantAccount': self.merchant_account,
@@ -140,24 +141,14 @@ class WayForPayAPI:
             'straightWidget': True
         }
 
-    def get_signature(self, options: dict, keys: list) -> str:
-        hash_str = list()
-        for datakey in keys:
-            if not options.get(datakey, None):
-                continue
-            if isinstance(options[datakey], list):
-                for _ in options[datakey]:
-                    hash_str.append(str(_))
-            else:
-                hash_str.append(str(options[datakey]))
-        hash_str = self.__SIGNATURE_SEPARATOR.join(hash_str)
-        self.merchant_key_encoded = bytes(str.encode(self.merchant_key))
-        _hash = hmac.new(self.merchant_key_encoded, hash_str.encode(
-            "utf-8"), hashlib.md5).hexdigest()
-        return _hash
-
     def get_request_signature(self, options: dict) -> str:
-        return self.get_signature(options, self.__signature__keys)
+        
+        return get_signature(
+            self.merchant_key,
+            self.__SIGNATURE_SEPARATOR,
+            options,
+            self.__signature__keys
+        )
 
     def createInvoiceRequest(self, invoice_data: dict) -> dict:
         """
@@ -185,10 +176,9 @@ class WayForPayAPI:
             'merchant_password': self.merchant_password,
         }
         response = requests.post(INVOICE_URL, data=createInvoiceObject(
-                account_data,
-                invoice_data
-            )
-        )
+            account_data,
+            invoice_data
+        ))
         return response.json()
 
     def editInvoiceRequest(self, invoice_data: dict) -> dict:
@@ -217,12 +207,11 @@ class WayForPayAPI:
             'merchant_password': self.merchant_password,
         }
         response = requests.post(INVOICE_URL, data=editInvoiceObject(
-                account_data,
-                invoice_data
-            )
-        )
+            account_data,
+            invoice_data
+        ))
         return response.json()
-    
+
     def statusInvoiceRequest(self, order_reference: str) -> dict:
         """
             param: orderReference : str
@@ -233,12 +222,11 @@ class WayForPayAPI:
             'merchant_password': self.merchant_password,
         }
         response = requests.post(INVOICE_URL, data=createInvoiceObject(
-                account_data,
-                order_reference
-            )
-        )
+            account_data,
+            order_reference
+        ))
         return response.json()
-    
+
     def pauseInvoiceRequest(self, order_reference: str) -> dict:
         """
             param: orderReference : str
@@ -249,12 +237,11 @@ class WayForPayAPI:
             'merchant_password': self.merchant_password,
         }
         response = requests.post(INVOICE_URL, data=pauseInvoiceObject(
-                account_data,
-                order_reference
-            )
-        )
+            account_data,
+            order_reference
+        ))
         return response.json()
-    
+
     def resumeInvoiceRequest(self, order_reference: str) -> dict:
         """
             param: orderReference : str
@@ -265,12 +252,11 @@ class WayForPayAPI:
             'merchant_password': self.merchant_password,
         }
         response = requests.post(INVOICE_URL, data=resumeInvoiceObject(
-                account_data,
-                order_reference
-            )
-        )
+            account_data,
+            order_reference
+        ))
         return response.json()
-    
+
     def removeInvoiceRequest(self, order_reference: str) -> dict:
         """
             param: orderReference : str
@@ -281,8 +267,7 @@ class WayForPayAPI:
             'merchant_password': self.merchant_password,
         }
         response = requests.post(INVOICE_URL, data=removeInvoiceObject(
-                account_data,
-                order_reference
-            )
-        )
+            account_data,
+            order_reference
+        ))
         return response.json()
