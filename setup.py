@@ -25,5 +25,5 @@ setup(
     ],
     packages=["wayforpay"],
     include_package_data=True,
-    install_requires=["requests"],
+    install_requires=["requests", "pytest"],
 )

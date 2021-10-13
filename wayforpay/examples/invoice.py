@@ -8,7 +8,7 @@ invoice_requests = InvoiceRequests(
 
 invoice_data = {
     'reqularMode': 'monthly',
-    'amount' : '10',
+    'amount' : '1',
     'currency' : 'UAH',
     'dateNext' : '13.10.2021',
     'dateEnd' : '13.10.2022',
