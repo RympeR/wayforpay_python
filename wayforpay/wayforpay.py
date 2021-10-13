@@ -13,7 +13,9 @@ API_URL = "https://api.wayforpay.com/api"
 PURCHASE_URL = "https://secure.wayforpay.com/pay"
 INVOICE_URL = 'https://api.wayforpay.com/regularApi'
 API_VERSION = 1
+
 today = date.today()
+
 
 class WayForPayAPI:
     __signature__keys = [
@@ -110,7 +112,7 @@ class PaymentRequests(WayForPayAPI):
 
         Returns:
             str: widget html <script> tag
-        """        
+        """
         self.merchantSignature = self.getRequestSignature(data)
         account_data = {
             'merchant_account': self.merchant_account,
@@ -169,7 +171,6 @@ class InvoiceRequests(WayForPayAPI):
     def __init__(self):
         super(InvoiceRequests, self).__init__()
 
-    
     def createInvoiceRequest(self, invoice_data: dict) -> dict:
         """[summary]
         Create user invoice
@@ -185,17 +186,17 @@ class InvoiceRequests(WayForPayAPI):
                         'halfyearly',
                         'yearly'
                     ]
-                    merchantPassword : str
-                    amount : str
-                    currency : str
-                    dateNext -> dd.mm.yyyy : str
-                    dateEnd -> dd.mm.yyyy : str
-                    orderReference -> timestamp : str
-                    email -> client email to notify
+                merchantPassword : str
+                amount : str
+                currency : str
+                dateNext -> dd.mm.yyyy : str
+                dateEnd -> dd.mm.yyyy : str
+                orderReference -> timestamp : str
+                email -> client email to notify
 
         Returns:
             dict: wayforpay reponse object
-        """      
+        """
         account_data = {
             'merchant_account': self.merchant_account,
             'merchant_password': self.merchant_password,
@@ -221,17 +222,17 @@ class InvoiceRequests(WayForPayAPI):
                         'halfyearly',
                         'yearly'
                     ]
-                    merchantPassword : str
-                    amount : str
-                    currency : str
-                    dateNext -> dd.mm.yyyy : str
-                    dateEnd -> dd.mm.yyyy : str
-                    orderReference -> timestamp : str
-                    email -> client email to notify
+                merchantPassword : str
+                amount : str
+                currency : str
+                dateNext -> dd.mm.yyyy : str
+                dateEnd -> dd.mm.yyyy : str
+                orderReference -> timestamp : str
+                email -> client email to notify
 
         Returns:
             dict: wayforpay reponse object
-        """  
+        """
         account_data = {
             'merchant_account': self.merchant_account,
             'merchant_password': self.merchant_password,
